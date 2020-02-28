@@ -1,0 +1,15 @@
+name: BlocksMined
+main: io.github.nick_provost.blocksmined.BlocksMined
+version: 1.0
+author: BloodyScotsman
+commands:
+   bm:
+      description: Displays the number of blocks mined by a player.
+      usage: /bm [player]
+      permission: BlocksMined.bm
+      permission-message: You don't have permission!
+   bmt:
+      description: Displays the number of blocks mined by all players.
+      usage: /bmt [player]
+      permission: BlocksMined.bmt
+      permission-message: You don't have permission!
