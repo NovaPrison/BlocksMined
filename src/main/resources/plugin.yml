@@ -1,7 +1,7 @@
 name: BlocksMined
-main: io.github.nick_provost.blocksmined.BlocksMined
+main: com.novaprison.blocksmined.BlocksMined
 version: 1.0
-author: BloodyScotsman
+author: Novaprison
 commands:
    bm:
       description: Displays the number of blocks mined by a player.
