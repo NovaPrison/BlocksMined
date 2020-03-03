@@ -119,4 +119,5 @@ local.properties
 .worksheet
 
 .classpath
+.project
 target/
