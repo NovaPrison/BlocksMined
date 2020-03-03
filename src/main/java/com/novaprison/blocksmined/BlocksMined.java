@@ -4,17 +4,18 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Hashtable;
-import java.util.Map;
+import java.util.UUID;
 
-public final class BlocksMined extends JavaPlugin implements Listener {
+public final class BlocksMined extends JavaPlugin implements BMAPI, Listener {
 
-    private Hashtable<String, Integer> blocks = new Hashtable<>();
+    private Hashtable<UUID, Integer> blocks = new Hashtable<>();
 
     @Override
     public void onEnable() {
@@ -30,13 +31,18 @@ public final class BlocksMined extends JavaPlugin implements Listener {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (label.equalsIgnoreCase("bm")) {
-            String player = args.length == 1 ? args[0] : sender.getName();
-            sender.sendMessage(ChatColor.YELLOW + player + " has mined " + ChatColor.BOLD + ChatColor.AQUA + (blocks.containsKey(player) ? blocks.get(player) : 0) + ChatColor.YELLOW + " blocks.");
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(ChatColor.RED + "You must be a player to send this or specify a player");
+                return true;
+            }
+
+            Player p = args.length == 1 ? Bukkit.getPlayer(args[0]) : (Player) sender;
+            sender.sendMessage(ChatColor.YELLOW + p.getName() + " has mined " + ChatColor.BOLD + ChatColor.AQUA + getMined(p) + ChatColor.YELLOW + " blocks.");
 
             return true;
         } else if (label.equalsIgnoreCase("bmt")) {
-            for (Map.Entry<String, Integer> k : blocks.entrySet()) {
-                sender.sendMessage(ChatColor.YELLOW + k.getKey() + ": " + ChatColor.BOLD + ChatColor.AQUA + k.getValue());
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                sender.sendMessage(ChatColor.YELLOW + p.getName() + ": " + ChatColor.BOLD + ChatColor.AQUA + getMined(p));
             }
 
             return true;
@@ -47,9 +53,36 @@ public final class BlocksMined extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
-        String name = event.getPlayer().getName();
-        int previous = blocks.containsKey(name) ? blocks.get(name) : 0;
+        mine(event.getPlayer(), 1);
+    }
 
-        blocks.put(name, previous + 1);
+    @Override
+    public int getMined(Player p) {
+        return getMined(p.getUniqueId());
+    }
+
+    @Override
+    public int getMined(UUID uuid) {
+        return blocks.containsKey(uuid) ? blocks.get(uuid) : 0;
+    }
+
+    @Override
+    public void setMined(Player p, int amount) {
+        setMined(p.getUniqueId(), amount);
+    }
+
+    @Override
+    public void setMined(UUID uuid, int amount) {
+        blocks.put(uuid, amount);
+    }
+
+    @Override
+    public void mine(Player p, int count) {
+        mine(p.getUniqueId(), count);
+    }
+
+    @Override
+    public void mine(UUID uuid, int count) {
+        setMined(uuid, getMined(uuid)+count);
     }
 }
